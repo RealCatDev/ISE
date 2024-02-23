@@ -62,6 +62,7 @@ void InitCommands() {
   Commands::initCommand(new UpdateCommand());
   Commands::initCommand(new RefreshCommand());
   Commands::initCommand(new ListCommand());
+  Commands::initCommand(new DeleteCommand());
 }
 
 void Stop() { sRunning = false; }

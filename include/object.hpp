@@ -78,6 +78,15 @@ private:
 class Objects {
 public:
   static void addObject(SpyingObject *obj) { sObjects.push_back(obj); }
+  static void removeObject(const char *name) {
+    size_t i = 0, found = sObjects.size();
+    for (auto obj : sObjects) {
+      if (strcmp(obj->getName(), name) == 0)
+      { found = i; break; }
+      i++;
+    }
+    if (found >= 0 && found < sObjects.size()) sObjects.erase(sObjects.begin() + found);
+  }
 
   static void refresh() {
     std::string dir(sOptions->DataDir);
@@ -113,6 +122,21 @@ public:
       return;
     }
     obj->update();
+  }
+
+  static void save() {
+    std::string filename(sOptions->DataDir);
+    filename += "objects.ise";
+    std::ostringstream result{};
+    for (auto obj : sObjects) {
+      std::string newDir = obj->getDir();
+      newDir = newDir.replace(0, std::string(sOptions->DataDir).length(), "");
+      result << "\"" << newDir << "\": \"" << obj->getName() << "\"" << std::endl;
+    }
+
+    std::ofstream file(filename.c_str(), std::ios_base::trunc);
+    file << result.str();
+    file.close();
   }
 
   static SpyingObject *getObject(const char *name, bool *found) {

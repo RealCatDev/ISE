@@ -183,6 +183,37 @@ public:
   }
 };
 
+class DeleteCommand : public Command {
+public:
+  DeleteCommand():
+    Command("del", "del <name...>")
+  {}
+
+  ~DeleteCommand() {
+
+  }
+
+  virtual void call(char **args, int argSize) override {
+    std::string name = "";
+    for (int i = 1; i < argSize; ++i) {
+      if (i > 1) name += " ";
+      name += args[i];
+    }
+
+    Objects::removeObject((char*)name.c_str());
+    Objects::save();
+    Objects::refresh();
+  }
+
+  virtual bool check(char **args, int argSize) override {
+    return argSize > 1;
+  }
+
+  virtual const char *getDescription() override {
+    return "Opens update editor for selected object.";
+  }
+};
+
 void Refresh();
 class RefreshCommand : public Command {
 public:
