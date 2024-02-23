@@ -48,15 +48,18 @@ Options *ParseArguments(int argc, char **argv) {
     }
   }
 
-  {
-    std::string str(options->DataDir);
-    if (!str.empty() && str.back() != '/') 
-      str.push_back('/');
-  }
-
   if (!options->DataDir) {
     fprintf(stderr, "Option `-d` (Data dir) is required!\n");
     exit(1);
+  }
+
+  {
+    int len = strlen(options->DataDir);
+    if (options->DataDir[len-1] != '/') {
+      options->DataDir = (char*)realloc(options->DataDir, len+2);
+      options->DataDir[len] = '/';
+      options->DataDir[len+1] = '\0';
+    }
   }
 
   return options;

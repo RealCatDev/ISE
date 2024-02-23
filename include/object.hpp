@@ -120,6 +120,8 @@ public:
       return (*found = true, obj);
     return nullptr;
   }
+
+  static std::vector<SpyingObject*> getObjects() { return sObjects; }
 private:
   inline static std::vector<SpyingObject*> sObjects{};
 };

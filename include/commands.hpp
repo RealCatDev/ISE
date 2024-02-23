@@ -207,4 +207,29 @@ public:
   }
 };
 
+class ListCommand : public Command {
+public:
+  ListCommand():
+    Command("list", "list")
+  {}
+
+  ~ListCommand() {
+
+  }
+
+  virtual void call(char **args, int argSize) override {
+    printf("Object list:\n");
+    for (auto obj : Objects::getObjects()) 
+      printf("  - \"%s\": Directory: \"%s\"\n", obj->getName(), obj->getDir());
+  }
+
+  virtual bool check(char **args, int argSize) override {
+    return argSize == 1;
+  }
+
+  virtual const char *getDescription() override {
+    return "Displays list of every spying object.";
+  }
+};
+
 #endif
