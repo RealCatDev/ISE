@@ -6,16 +6,29 @@
 class Commands {
 public:
   static void call(char **args, int argSize) {
-    if (argSize <= 0) return;
+    if (argSize <= 0) 
+    return;
+
     bool found = false;
     for (auto cmd : sCommands) {
-      if (strcmp(cmd->getName(), args[0]) == 0) {
+      bool is = false;
+      if (!(is = (strcmp(cmd->getName(), args[0]) == 0)) && cmd->getAliases().size() > 0) {
+        auto aliases = cmd->getAliases();
+        int alsIdx = 0;
+        while (!is && alsIdx < aliases.size()) {
+          char *alias = (char*)aliases[alsIdx];
+          is = strcmp(alias, args[0]) == 0;
+          alsIdx++;
+        }
+      }
+      if (is) {
         found = true;
         if (cmd->check(args, argSize))
           cmd->call(args, argSize);
         else {
           printf("Invalid arguments! Usage: `%s`\n", cmd->getUsage());
         }
+        break;
       }
     }
     if (!found) {
@@ -42,7 +55,7 @@ private:
 class HelpCommand : public Command {
 public:
   HelpCommand():
-    Command("help", "help [command]")
+    Command("help", "[command]")
   {}
 
   ~HelpCommand() {
@@ -54,15 +67,23 @@ public:
     if (argSize == 1) {
       printf("  Startup info:\n    - Data Dir: %s\n", sOptions->DataDir);
       printf("  Commands:\n");
-      for (auto cmd : Commands::getCommands())
-        printf("    - `%s`:\n      Usage: %s\n      Description: %s\n", cmd->getName(), cmd->getUsage(), cmd->getDescription());
+      for (auto cmd : Commands::getCommands()) {
+        printf("    - `%s`:\n", cmd->getName());
+        auto usage = cmd->getUsage();
+        printf("      Usage: `%s`\n", usage.c_str());
+        printf("      Description: %s\n", cmd->getDescription());;
+      }
     } else {
       bool found = false;
       Command *cmd = Commands::getCommand(args[1], &found);
-      if (!found) {
+      if (!found)
         printf("Command `%s` not found!\n", args[1]);
-      } else
-        printf("`%s`:\n  Usage: %s\n  Description: %s\n", cmd->getName(), cmd->getUsage(), cmd->getDescription());
+      else {
+        auto usage = cmd->getUsage();
+        printf("`%s`:\n  Usage: `%s`\n  Description: %s\n", cmd->getName(), usage.c_str(), cmd->getDescription());
+        printf("  Aliases:\n");
+        for (auto als : cmd->getAliases()) printf("    - %s\n", als);
+      }
     }
   }
 
@@ -78,7 +99,7 @@ public:
 class ClearCommand : public Command {
 public:
   ClearCommand():
-    Command("clear", "clear")
+    Command("clear", "", { "cls" })
   {}
 
   ~ClearCommand() {
@@ -102,7 +123,7 @@ void Stop();
 class QuitCommand : public Command {
 public:
   QuitCommand():
-    Command("quit", "quit")
+    Command("exit", "", { "quit" })
   {}
 
   ~QuitCommand() {
@@ -125,7 +146,7 @@ public:
 class CreateCommand : public Command {
 public:
   CreateCommand():
-    Command("create", "create <dir> <name...>")
+    Command("create", "<dir> <name...>")
   {}
 
   ~CreateCommand() {
@@ -157,7 +178,7 @@ public:
 class UpdateCommand : public Command {
 public:
   UpdateCommand():
-    Command("update", "update <name...>")
+    Command("upd", "<name...>", { "update" })
   {}
 
   ~UpdateCommand() {
@@ -186,7 +207,7 @@ public:
 class DeleteCommand : public Command {
 public:
   DeleteCommand():
-    Command("del", "del <name...>")
+    Command("del", "<name...>", { "delete" })
   {}
 
   ~DeleteCommand() {
@@ -218,7 +239,7 @@ void Refresh();
 class RefreshCommand : public Command {
 public:
   RefreshCommand():
-    Command("refresh", "refresh")
+    Command("refresh", "")
   {}
 
   ~RefreshCommand() {
@@ -241,7 +262,7 @@ public:
 class ListCommand : public Command {
 public:
   ListCommand():
-    Command("list", "list")
+    Command("list", "")
   {}
 
   ~ListCommand() {
